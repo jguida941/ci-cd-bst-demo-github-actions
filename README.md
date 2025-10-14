@@ -227,6 +227,19 @@ ruff check . --select S,B
 - `make mutation` : execute `mutmut` against `bst/binary_search.py` (pytest runs without coverage but must still kill every mutant).
 - `make clean` : remove caches (`.mutmut-cache`, `.coverage`, `reports/`).
 
+## Pytest
+
+<img width="670" height="871" alt="Screenshot 2025-10-14 at 11 48 16 AM" src="https://github.com/user-attachments/assets/c13eac36-b918-4516-88ea-beb95aaa20c3" />
+
+
+## Coverage & Mutation Testing
+
+<img width="500" height="488" alt="Screenshot 2025-10-14 at 11 43 02 AM" src="https://github.com/user-attachments/assets/b9558c2b-b726-4f3f-a30f-01927acdb5d4" />
+
+## Hypothesis Testing
+
+<img width="1027" height="523" alt="Screenshot 2025-10-14 at 11 47 30 AM" src="https://github.com/user-attachments/assets/4e2923e8-60fd-4500-9e3d-e06e86ee2a7b" />
+
 
 
 
