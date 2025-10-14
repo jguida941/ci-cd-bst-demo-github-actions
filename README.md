@@ -49,7 +49,7 @@ Every time you **push** or **open a pull request**, GitHub Actions automatically
 - **test** job: depends on both jobs, runs the full pytest suite with coverage (enforcing a 95% minimum), produces a Markdown summary, uploads artifacts, posts PR comments, emails the report (optional), and ships coverage to Codecov.
 - **mutation** job: runs `mutmut` after unit tests, failing the workflow if any mutants survive the suite.
 - **security** workflow: executes `pip-audit`, Bandit, Ruff security rules, CodeQL analysis, dependency review, and CycloneDX SBOM generation on push/PR/weekly cron, with SARIF artifacts uploaded to the Security tab.
-- Workflow triggers on `main` (healthy) and `fail-demo` (intentionally broken) so you always see a green and red badge side-by-side.
+- **Workflow triggers** on `main` (healthy) and `fail-demo` (intentionally broken) so you always see a green and red badge side-by-side.
 
 ### Why CI/CD matters here
 
@@ -62,6 +62,25 @@ Automated verification means every commit proves that:
 - Style and typing remain consistent with the shared guidelines.
 
 That combination is good practice: fast feedback, reproducible environments, and a clear demonstration that regressions are caught before they reach production.
+
+## Continuous Integration (CI) Pipeline Summary
+
+### **The GitHub Actions pipeline**:
+Automatically runs on every push and pull request to main.
+It executes linting, type checking, unit testing, and mutation testing, then automatically generates a Markdown-based CI Test Report and uploads it as an artifact.
+
+<img width="1718" height="1018" alt="Screenshot 2025-10-14 at 11 55 57 AM" src="https://github.com/user-attachments/assets/f95d1a07-c2e8-4e2a-9918-0dfea8f7bbba" />
+
+### **Security & Supply Chain Workflow**
+	
+<img width="1715" height="1026" alt="Screenshot 2025-10-14 at 11 54 56 AM" src="https://github.com/user-attachments/assets/345e0048-7c11-4b80-9e26-414e13331e02" />
+
+- **pip-audit** for dependency vulnerability scanning
+- **bandit** for static security analysis
+- **ruff-security** for lint-based threat checks
+- **codeql** for deep semantic vulnerability analysis
+- **cyclonedx-py** to generate a CycloneDX v1.4 SBOM
+- **dependency-review** for PR-level supply chain monitoring
 
 
 ## Local Setup
@@ -232,7 +251,7 @@ ruff check . --select S,B
 <img width="670" height="871" alt="Screenshot 2025-10-14 at 11 48 16 AM" src="https://github.com/user-attachments/assets/c13eac36-b918-4516-88ea-beb95aaa20c3" />
 
 
-## Coverage & Mutation Analysi
+## Coverage & Mutation Analysis
 
 <img width="500" height="488" alt="Screenshot 2025-10-14 at 11 43 02 AM" src="https://github.com/user-attachments/assets/b9558c2b-b726-4f3f-a30f-01927acdb5d4" />
 
@@ -290,5 +309,5 @@ binary_search_tree/
 
 ## License
 ```
-
+Justin Paul Guida
 MIT License © 2025
