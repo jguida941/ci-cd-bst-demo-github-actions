@@ -1,0 +1,62 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    target-branch: "main"
+    labels: ["dependencies", "pip"]
+    assignees: ["jguida941"]
+    reviewers: ["jguida941"]
+    commit-message:
+      prefix: "deps(pip)"
+      include: "scope"
+    groups:
+      testing:
+        applies-to: security-updates|version-updates
+        patterns:
+          - "pytest*"
+          - "hypothesis*"
+          - "coverage*"
+      linting:
+        applies-to: version-updates
+        patterns:
+          - "ruff*"
+          - "mypy*"
+          - "bandit*"
+      cli-utils:
+        applies-to: version-updates
+        patterns:
+          - "click*"
+          - "rich*"
+    ignore:
+      - dependency-name: "pytest"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "mypy"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    target-branch: "main"
+    labels: ["dependencies", "github-actions"]
+    assignees: ["jguida941"]
+    reviewers: ["jguida941"]
+    commit-message:
+      prefix: "deps(actions)"
+      include: "scope"
+    groups:
+      gha-core:
+        patterns:
+          - "actions/*"
+          - "github/*"
+          - "codecov/*"

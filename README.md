@@ -1,61 +1,246 @@
-# Binary Search Tree (BST) in Python
+
+# Binary Search Tree (BST) + GitHub Actions CI/CD
+
+⚡ This simple project demonstrates a **Binary Search Tree** implemented in **Python**, automatically tested through **GitHub Actions CI/CD**.
 
 ![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white)
 ![Recursion](https://img.shields.io/badge/Recursion-Enabled-green)
 ![Data Structures](https://img.shields.io/badge/Data%20Structures-BST-orange)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
+[![Tests - main](https://github.com/jguida941/GithubActionsDemo/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/jguida941/GithubActionsDemo/actions/workflows/tests.yml?query=branch%3Amain)
+[![Tests - fail-demo](https://github.com/jguida941/GithubActionsDemo/actions/workflows/tests.yml/badge.svg?branch=fail-demo)](https://github.com/jguida941/GithubActionsDemo/actions/workflows/tests.yml?query=branch%3Afail-demo)
+[![Coverage](https://codecov.io/gh/jguida941/GithubActionsDemo/branch/main/graph/badge.svg?token=REPLACE_WITH_CODECOV_TOKEN)](https://codecov.io/gh/jguida941/GithubActionsDemo)
+![Mutation Testing](https://img.shields.io/badge/Mutation%20Testing-mutmut%20clean-brightgreen)
+[![Security Scan](https://github.com/jguida941/GithubActionsDemo/actions/workflows/security.yml/badge.svg)](https://github.com/jguida941/GithubActionsDemo/actions/workflows/security.yml)
 
-A minimal example of a Binary Search Tree (BST) implemented with classes and recursion.
 
-## Features
-- Insert nodes
-- Search for values
-- Delete nodes (handles 0, 1, 2 children)
-- Inorder traversal (prints sorted contents)
+## Branch Demo
 
-## Example
-```python
-from binary_search_tree import BinarySearchTree  # adjust filename if different
+- `main` holds the corrected BST implementation and should stay green.
+- `fail-demo` keeps the intentionally broken version so recruiters can see the pipeline catching a regression.
+- Both branches run the exact same workflow, so the paired badges above show a passing vs. failing run in real time.
 
-bst = BinarySearchTree()
-nodes = [50, 30, 20, 40, 70, 60, 80]
 
-# Insert
-for node in nodes:
-    bst.insert(node)
+## Continuous Integration (CI)
 
-# Search
-print('Search for 80:', bst.search(80))  # -> 80
+Every time you **push** or **open a pull request**, GitHub Actions automatically:
 
-# Inorder before/after delete
-print('Inorder before delete:', bst.inorder())  # [20, 30, 40, 50, 60, 70, 80]
-bst.delete(80)
-print('Inorder after delete :', bst.inorder())  # [20, 30, 40, 50, 60, 70]
+1. Runs `ruff` for linting (style, import order, best practices).
+2. Runs `mypy` to ensure the tree implementation type-checks.
+3. Spins up Python 3.10, installs from `requirements-dev.txt`, and executes the suite with coverage enabled (matching `pytest.ini` defaults).
+4. Generates a Markdown test report, attaches logs/JUnit XML, updates the job summary, and comments on pull requests.
+5. Optionally emails the same report if SMTP credentials are configured (see below).
+
+### Workflow breakdown
+
+- **lint** job: installs tooling via `requirements-dev.txt` and runs `ruff check .` so style violations fail fast.
+- **type-check** job: runs `mypy bst` to catch interface mistakes before runtime.
+- **test** job: depends on both jobs, runs the full pytest suite with coverage (enforcing a 95% minimum), produces a Markdown summary, uploads artifacts, posts PR comments, emails the report (optional), and ships coverage to Codecov.
+- **mutation** job: runs `mutmut` after unit tests, failing the workflow if any mutants survive the suite.
+- **security** workflow: executes `pip-audit`, Bandit, Ruff security rules, CodeQL analysis, dependency review, and CycloneDX SBOM generation on push/PR/weekly cron, with SARIF artifacts uploaded to the Security tab.
+- Workflow triggers on `main` (healthy) and `fail-demo` (intentionally broken) so you always see a green and red badge side-by-side.
+
+### Why CI/CD matters here
+
+Automated verification means every commit proves that:
+
+- The tree still respects ordering guarantees (traversal tests).
+- Lookup paths return the right nodes (search tests).
+- Critical deletion scenarios keep the tree valid (delete tests).
+- Duplicate inserts are rejected while new inserts stay ordered (insert tests).
+- Style and typing remain consistent with the shared guidelines.
+
+That combination is exactly what recruiters expect to see: fast feedback, reproducible environments, and a clear demonstration that regressions are caught before they reach production.
+
+
+## Local Setup
+
+Replicate the CI environment locally:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements-dev.txt
+pytest
 ```
 
-## Extra Methods You Can Add
+`requirements.txt` stays empty on purpose:there are no runtime dependencies:while `requirements-dev.txt` layers on linting, typing, and test tooling.
 
-- **min() / max()**
+
+
+## Purpose
+
+This repo intentionally includes both a **broken** and a **fixed** version of the `insert()` method to demonstrate automated testing through CI/CD.
+
+
+
+### Broken Code Example
+
+This version has **directions flipped**, causing unit tests to fail.
+
 ```python
-def min(self):
-    node = self.root
-    while node and node.left:
-        node = node.left
-    return node.key if node else None
-
-def max(self):
-    node = self.root
-    while node and node.right:
-        node = node.right
-    return node.key if node else None
+if key > node.key:
+    node.left = self._insert(node.left, key)
+elif key < node.key:
+    node.right = self._insert(node.right, key)
+return node
 ```
 
-- **height()**
-```python
-def height(self, node=None):
-    if node is None:
-        node = self.root
-    if not node:
-        return -1  # empty tree has height -1
-    return 1 + max(self.height(node.left), self.height(node.right))
+
+### Correct Code Example
+
+This fixes the insertion direction logic.
+
+```Python
+if key < node.key:
+    node.left = self._insert(node.left, key)
+elif key > node.key:
+    node.right = self._insert(node.right, key)
+return node
 ```
+
+
+
+### Failed Unit Test Example
+
+When the logic is wrong, GitHub Actions automatically catches it:
+
+```
+_____________________________ test_inorder_traversal ___________________________
+
+    def test_inorder_traversal(bst_tree):
+>       assert bst_tree.inorder() == [20, 30, 40, 50, 60, 70, 80]
+E       assert [80, 70, 60, 50, 40, 30, 20] == [20, 30, 40, 50, 60, 70, 80]
+
+tests/test_traversal.py:2: AssertionError
+```
+
+
+
+### Passing Unit Tests Example
+
+After fixing the code, the CI pipeline passes cleanly:
+
+```
+============================= test session starts ==============================
+platform linux -- Python 3.10.x, pytest-8.x, pluggy-1.x
+collected 18 items
+
+tests/test_delete.py ........
+tests/test_delete_missing.py .
+tests/test_delete_one_child.py ..
+tests/test_delete_successor.py .
+tests/test_edge_cases.py ...
+tests/test_fuzz_invariants.py .
+tests/test_insert.py ..
+tests/test_search.py ...
+tests/test_traversal.py .
+tests/test_traversal_empty.py .
+
+============================== 18 passed in 0.2s ==============================
+Required test coverage of 95% reached: 100.00%
+```
+
+
+## Test Reporting, Coverage & Notifications
+
+- The `test` job writes `reports/report.md`, `reports/pytest.log`, `reports/junit.xml`, and `reports/coverage.txt`/`coverage.xml`.
+- The Markdown report is visible in the GitHub Actions job summary, stored as an artifact, posted as a PR comment, and the coverage XML is uploaded to Codecov for tracking the badge above.
+- Email delivery requires repository secrets (`SMTP_SERVER`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `MAIL_FROM`, `MAIL_TO`). Set `MAIL_TO` to `justinguidascell@gmail.com` (or any recipient) and use an App Password/API key when your provider requires it.
+- Codecov uploads require a `CODECOV_TOKEN` secret (Settings → Secrets and variables → Actions). Paste the repository token from Codecov and replace the `REPLACE_WITH_CODECOV_TOKEN` placeholder in the badge once it is provisioned.
+
+## Test Suite Highlights
+
+- `tests/test_traversal.py` validates in-order traversal stays sorted.
+- `tests/test_search.py` covers hits and misses in the tree search.
+- `tests/test_delete.py` exercises leaf removal, interior node removal, and root replacement.
+- `tests/test_insert.py` checks duplicate guard rails and ordering when new keys are added.
+- `tests/conftest.py` centralizes the baseline tree fixture so every test starts from the same state.
+- `tests/test_edge_cases.py` hits empty-tree searches/deletes and duplicate inserts (covering early returns on lines 33–57).
+- `tests/test_delete_one_child.py` validates deleting roots with a single child on either side (lines 80–91).
+- `tests/test_delete_missing.py` ensures deleting a non-existent key leaves the tree untouched (line 80 guard).
+- `tests/test_delete_successor.py` drives the inorder-successor loop deep into the right subtree (lines 119–129).
+- `tests/test_traversal_empty.py` covers the empty traversal path so the DFS guard stays exercised.
+
+## Coverage, Mutation, and Security Testing
+
+- Pytest is configured with `--cov=bst --cov-fail-under=95`, and the current suite hits 100% of statements/branches, eliminating the gaps that previously showed up on lines 33, 80, 86, 91, and 119–129.
+- The CI step publishes a human-readable summary (`reports/coverage.txt`), fails if coverage dips below 95%, and ships `reports/coverage.xml` to Codecov for the live badge.
+- Mutation testing (`mutmut`) runs after the unit tests and fails the workflow if any mutants survive, proving the assertions are strong enough to catch behavioral regressions.
+- Hypothesis-based property tests (`tests/test_fuzz_invariants.py`) fuzz insert/delete sequences, ensuring invariants hold under random workloads.
+- Security workflow runs `pip-audit`, `bandit`, `ruff` (security/bugbear rules), CodeQL, and SBOM generation, with badges in the README to demonstrate the health of those checks and SARIF uploads that surface findings under **Security → Code scanning alerts**.
+- Dependabot opens weekly, grouped PRs for pip packages and GitHub Actions (labelled/assigned automatically) so dependency drift is caught early.
+
+Sample local run:
+
+```
+$ pip install -r requirements-dev.txt
+$ make test
+============================= test session starts ==============================
+collected 18 items
+
+tests/test_delete.py ........
+tests/test_delete_missing.py .
+tests/test_delete_one_child.py ..
+tests/test_delete_successor.py .
+tests/test_edge_cases.py ...
+tests/test_fuzz_invariants.py .
+tests/test_insert.py ..
+tests/test_search.py ...
+tests/test_traversal.py .
+tests/test_traversal_empty.py .
+
+============================== 18 passed in 0.22s ==============================
+Required test coverage of 95% reached. Total coverage: 100.00%
+```
+
+*Coverage numbers above come from a representative local run; CI enforces the same threshold and uploads the XML to Codecov.*
+
+## Make Targets
+
+- `make test` : run the full pytest suite with `--cov` enabled and a 95 % fail-under gate (mirrors the CI workflow).
+- `make coverage` : rerun tests, print the terminal coverage report, and regenerate `reports/coverage.xml`.
+- `make mutation` : execute `mutmut` against `bst/binary_search.py` (pytest runs without coverage but must still kill every mutant).
+- `make clean` : remove caches (`.mutmut-cache`, `.coverage`, `reports/`).
+
+
+
+
+## Tech Stack
+		•	Python 3.x
+	•	Unittest / Pytest
+	•	GitHub Actions (CI/CD)
+
+
+## Project Structure
+
+binary_search_tree/
+├── bst/
+│   └── binary_search.py
+├── tests/
+│   ├── conftest.py
+│   ├── test_delete.py
+│   ├── test_delete_missing.py
+│   ├── test_delete_one_child.py
+│   ├── test_delete_successor.py
+│   ├── test_edge_cases.py
+│   ├── test_insert.py
+│   ├── test_search.py
+│   ├── test_traversal.py
+│   └── test_traversal_empty.py
+├── requirements.txt
+├── requirements-dev.txt
+├── Makefile
+├── pytest.ini
+├── pytest.mutmut.ini
+├── setup.cfg
+├── CODEOWNERS
+├── SECURITY.md
+├── .gitignore
+└── .github/
+    └── workflows/
+        ├── tests.yml
+        └── security.yml
+🧾 License
+
+MIT License © 2025

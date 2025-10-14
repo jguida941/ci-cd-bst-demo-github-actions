@@ -1,0 +1,12 @@
+-r requirements.txt
+
+pytest
+pytest-cov
+ruff
+mypy
+coverage
+mutmut
+hypothesis
+pip-audit
+bandit[toml]
+cyclonedx-bom

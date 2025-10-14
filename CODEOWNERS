@@ -1,0 +1,6 @@
+# Automatically request review from the maintainer on any PR touching this repo.
+* @jguida941
+
+# Optional: tighten certain directories
+# bst/ @jguida941
+# tests/ @jguida941
