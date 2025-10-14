@@ -1,7 +1,7 @@
 
 # Binary Search Tree (BST) + GitHub Actions CI/CD
 
-⚡ This simple project demonstrates a **Binary Search Tree** implemented in **Python**, automatically tested through **GitHub Actions CI/CD**.
+This simple project demonstrates a **Binary Search Tree** implemented in **Python**, automatically tested through **GitHub Actions CI/CD**.
 
 ![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white)
 ![Recursion](https://img.shields.io/badge/Recursion-Enabled-green)
