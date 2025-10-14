@@ -36,8 +36,8 @@ jobs:
           fi
           if [ ! -s pip-audit.sarif ]; then
             cat <<'EOF' > pip-audit.sarif
-{"version":"2.1.0","$schema":"https://json.schemastore.org/sarif-2.1.0.json","runs":[]}
-EOF
+            {"version":"2.1.0","$schema":"https://json.schemastore.org/sarif-2.1.0.json","runs":[]}
+          EOF
           fi
       - name: Upload pip-audit SARIF
         uses: github/codeql-action/upload-sarif@v3
@@ -63,8 +63,8 @@ EOF
           bandit -r bst -f sarif -o bandit.sarif || true
           if [ ! -s bandit.sarif ]; then
             cat <<'EOF' > bandit.sarif
-{"version":"2.1.0","$schema":"https://json.schemastore.org/sarif-2.1.0.json","runs":[]}
-EOF
+          {"version":"2.1.0","$schema":"https://json.schemastore.org/sarif-2.1.0.json","runs":[]}
+          EOF
           fi
       - name: Upload bandit SARIF
         uses: github/codeql-action/upload-sarif@v3
@@ -90,8 +90,8 @@ EOF
           ruff check . --select S,B --format sarif > ruff.sarif || true
           if [ ! -s ruff.sarif ]; then
             cat <<'EOF' > ruff.sarif
-{"version":"2.1.0","$schema":"https://json.schemastore.org/sarif-2.1.0.json","runs":[]}
-EOF
+          {"version":"2.1.0","$schema":"https://json.schemastore.org/sarif-2.1.0.json","runs":[]}
+          EOF
           fi
       - name: Upload ruff SARIF
         uses: github/codeql-action/upload-sarif@v3

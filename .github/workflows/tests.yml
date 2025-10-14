@@ -132,27 +132,29 @@ jobs:
           coverage_passed = os.environ.get("COVERAGE_PASSED", "false") == "true"
           coverage_status = "PASS Meets threshold" if coverage_passed else "WARN Below threshold or unavailable"
 
-          md = f"""# CI Test Report
-
-**Commit:** {os.environ.get('GITHUB_SHA', 'unknown')}
-**Branch:** {os.environ.get('GITHUB_REF_NAME', 'unknown')}
-
-## Summary
-- Total: **{total}**
-- Passed: **{passed}**
-- Failed: **{failures}**
-- Errors: **{errors}**
-- Skipped: **{skipped}**
-
-## Coverage
-- Status: {coverage_status}
-```
-{coverage_text}
-```
-
-## Logs
-See attached artifacts for `pytest.log` and `junit.xml`.
-"""
+          md_lines = [
+            "# CI Test Report",
+            "",
+            f"**Commit:** {os.environ.get('GITHUB_SHA', 'unknown')}",
+            f"**Branch:** {os.environ.get('GITHUB_REF_NAME', 'unknown')}",
+            "",
+            "## Summary",
+            f"- Total: **{total}**",
+            f"- Passed: **{passed}**",
+            f"- Failed: **{failures}**",
+            f"- Errors: **{errors}**",
+            f"- Skipped: **{skipped}**",
+            "",
+            "## Coverage",
+            f"- Status: {coverage_status}",
+            "```",
+            coverage_text,
+            "```",
+            "",
+            "## Logs",
+            "See attached artifacts for `pytest.log` and `junit.xml`."
+          ]
+          md = "\n".join(md_lines)
           reports = Path("reports")
           reports.mkdir(parents=True, exist_ok=True)
           (reports / "report.md").write_text(md, encoding="utf-8")
