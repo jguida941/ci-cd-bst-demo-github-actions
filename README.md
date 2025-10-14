@@ -46,10 +46,13 @@ failing unit tests and preventing the merge into `main`.
 
 <img width="772" height="934" alt="Screenshot 2025-10-14 at 12 55 04 PM" src="https://github.com/user-attachments/assets/4c865f96-8d4a-49bc-a403-fff646c9f8b7" />
 
-### Failing Pull Request Demo: GitHub Actions CI/CD Automatically Blocks Regression
-Even though the pull request shows “No conflicts with base branch,”
-**GitHub Actions automatically blocks the merge** due to a failed unit test and unmet coverage threshold.
+### GitHub Actions automatically blocks the merge** due to a failed unit test and unmet coverage threshold.
 This demonstrates that **CI/CD enforces functional correctness beyond Git’s structural checks.**
+This verifies that even when Git reports **“no merge conflicts,”** the CI/CD pipeline **still prevents regressions** from entering `main`, ensuring **consistent, production-safe code integrity.**
+
+
+<img width="640" height="804" alt="Screenshot 2025-10-14 at 1 08 47 PM" src="https://github.com/user-attachments/assets/94bbfe79-e9de-48c9-9f3d-ed8893ef626a" />
+
 
 ## Continuous Integration (CI)
 
