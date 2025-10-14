@@ -15,44 +15,32 @@ jobs:
   lint:
     name: Python lint (ruff)
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
           cache: pip
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
-
       - name: Run ruff
         run: ruff check .
 
   type-check:
     name: Python type check (mypy)
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
           cache: pip
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
-
       - name: Run mypy
         env:
           PYTHONPATH: .
@@ -70,20 +58,15 @@ jobs:
       MAIL_TO: ${{ secrets.MAIL_TO }}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
-
       - name: Run pytest with coverage
         id: pytest
         env:
@@ -91,16 +74,19 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p reports
-          pytest --cov=bst --cov-report=term-missing --junitxml=reports/junit.xml | tee reports/pytest.log
+          pytest --junitxml=reports/junit.xml | tee reports/pytest.log
           pytest_exit=${PIPESTATUS[0]}
           coverage_passed=true
-          coverage xml -o reports/coverage.xml || coverage_passed=false
-          coverage report --fail-under=95 | tee reports/coverage.txt || coverage_passed=false
-          echo "coverage_passed=${coverage_passed}" >> "$GITHUB_OUTPUT"
+          if [ -f .coverage ]; then
+            coverage xml -o reports/coverage.xml || coverage_passed=false
+            coverage report --fail-under=95 | tee reports/coverage.txt || coverage_passed=false
+          else
+            coverage_passed=false
+          fi
           echo "pytest_exit=${pytest_exit}" >> "$GITHUB_OUTPUT"
+          echo "coverage_passed=${coverage_passed}" >> "$GITHUB_OUTPUT"
           exit ${pytest_exit}
         continue-on-error: true
-
       - name: Generate Markdown report
         id: report
         if: ${{ always() }}
@@ -112,10 +98,10 @@ jobs:
           import xml.etree.ElementTree as ET
           from pathlib import Path
 
-          junit = Path("reports/junit.xml")
+          junit_path = Path("reports/junit.xml")
           total = failures = errors = skipped = 0
-          if junit.exists():
-            root = ET.parse(junit).getroot()
+          if junit_path.exists():
+            root = ET.parse(junit_path).getroot()
             suites = root.findall(".//testsuite") or ([root] if root.tag == "testsuite" else [])
             for suite in suites:
               total += int(suite.attrib.get("tests", 0))
@@ -129,10 +115,9 @@ jobs:
             coverage_text = coverage_file.read_text(encoding="utf-8").strip()
           else:
             coverage_text = "Coverage summary unavailable."
-          coverage_passed = os.environ.get("COVERAGE_PASSED", "false") == "true"
-          coverage_status = "PASS Meets threshold" if coverage_passed else "WARN Below threshold or unavailable"
+          coverage_status = "PASS Meets threshold" if os.environ.get("COVERAGE_PASSED") == "true" else "WARN Below threshold or unavailable"
 
-          md_lines = [
+          md = "\n".join([
             "# CI Test Report",
             "",
             f"**Commit:** {os.environ.get('GITHUB_SHA', 'unknown')}",
@@ -152,34 +137,22 @@ jobs:
             "```",
             "",
             "## Logs",
-            "See attached artifacts for `pytest.log` and `junit.xml`."
-          ]
-          md = "\n".join(md_lines)
-          reports = Path("reports")
-          reports.mkdir(parents=True, exist_ok=True)
-          (reports / "report.md").write_text(md, encoding="utf-8")
+            "See attached artifacts for `pytest.log` and `junit.xml`.",
+          ])
 
-          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
-            status = "true" if (failures == 0 and errors == 0 and total > 0) else "false"
-            handle.write(f"passed={status}\n")
-            handle.write("body<<EOF\n")
-            handle.write(md)
-            handle.write("\nEOF\n")
+          Path("reports/report.md").write_text(md, encoding="utf-8")
+          print(md)
           PY
-
       - name: Add report to job summary
-        if: ${{ always() && steps.report.outputs.body != '' }}
-        env:
-          REPORT_BODY: ${{ steps.report.outputs.body }}
-        run: printf '%s\n' "$REPORT_BODY" >> "$GITHUB_STEP_SUMMARY"
-
+        if: ${{ always() && steps.report.outputs == null }}
+        run: |
+          cat reports/report.md >> "$GITHUB_STEP_SUMMARY"
       - name: Upload test reports
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: test-reports-${{ matrix.python-version }}
           path: reports/
-
       - name: Upload coverage to Codecov
         if: ${{ always() && hashFiles('reports/coverage.xml') != '' }}
         uses: codecov/codecov-action@v4
@@ -188,43 +161,8 @@ jobs:
           flags: unit
           fail_ci_if_error: true
 
-      - name: Comment on PR with report
-        if: ${{ always() && github.event_name == 'pull_request' && steps.report.outputs.body != '' }}
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const body = process.env.REPORT_BODY;
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body
-            });
-        env:
-          REPORT_BODY: ${{ steps.report.outputs.body }}
-
-      - name: Email report (optional)
-        if: ${{ always() && env.MAIL_TO && steps.report.outputs.body != '' }}
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: ${{ secrets.SMTP_SERVER }}
-          server_port: ${{ secrets.SMTP_PORT }}
-          username: ${{ secrets.SMTP_USERNAME }}
-          password: ${{ secrets.SMTP_PASSWORD }}
-          subject: CI Report - ${{ github.repository }} @ ${{ github.sha }}
-          from: ${{ secrets.MAIL_FROM }}
-          to: ${{ env.MAIL_TO }}
-          content_type: text/markdown
-          body: ${{ steps.report.outputs.body }}
-          attachments: |
-            reports/junit.xml
-            reports/pytest.log
-            reports/report.md
-            reports/coverage.txt
-            reports/coverage.xml
-
       - name: Fail job if tests failed
-        if: ${{ always() && steps.report.outputs.passed == 'false' }}
+        if: ${{ always() && steps.pytest.outputs.pytest_exit != '0' }}
         run: |
           echo "Tests failed; see report above."
           exit 1
@@ -235,26 +173,40 @@ jobs:
           echo "Coverage threshold not met; see coverage summary above."
           exit 1
 
+      - name: Email report (optional)
+        if: ${{ always() && env.MAIL_TO }}
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: CI Report - ${{ github.repository }} @ ${{ github.sha }}
+          from: ${{ secrets.MAIL_FROM }}
+          to: ${{ env.MAIL_TO }}
+          content_type: text/markdown
+          body: ${{ steps.report.outputs.body || '' }}
+          attachments: |
+            reports/junit.xml
+            reports/pytest.log
+            reports/report.md
+            reports/coverage.txt
+            reports/coverage.xml
+
   mutation:
     name: Mutation testing (mutmut)
     needs: [ test ]
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
           cache: pip
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
-
       - name: Run mutation tests
         env:
           PYTHONPATH: .
@@ -266,10 +218,20 @@ jobs:
           mutmut results > reports/mutmut.txt
           cat reports/mutmut.txt
           survivors=$(python - <<'PY'
-          import re
-          from pathlib import Path
-          text = Path('reports/mutmut.txt').read_text(encoding='utf-8')
-          match = re.search(r"survived\s+(\d+)", text, re.IGNORECASE)
-          print(match.group(1) if match else "0")
-          PY
+from pathlib import Path
+import re
+text = Path('reports/mutmut.txt').read_text(encoding='utf-8')
+match = re.search(r"survived\s+(\d+)", text, re.IGNORECASE)
+print(match.group(1) if match else "0")
+PY
           )
+          if [ "$survivors" != "0" ]; then
+            echo "Mutation testing found surviving mutants: $survivors"
+            exit 1
+          fi
+      - name: Upload mutation report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutation-report
+          path: reports/mutmut.txt

@@ -117,7 +117,8 @@ class BinarySearchTree:
         result = []
 
         def dfs(node):
-            if not node: return
+            if not node:
+                return
             dfs(node.left)
             result.append(node.key)
             dfs(node.right)
