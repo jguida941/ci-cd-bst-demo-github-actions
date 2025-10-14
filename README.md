@@ -16,20 +16,20 @@
 
 ## Branch Demo
 
-- `main` holds the corrected BST implementation and should stay green.
-- `fail-demo` keeps the intentionally broken version so recruiters can see the pipeline catching a regression.
-- Both branches run the exact same workflow, so the paired badges above show a passing vs. failing run in real time.
+- `main` stays green with the fixed BST implementation.
+- `fail-demo` intentionally keeps the buggy insert/search logic so the red badge proves CI catches regressions.
+- Both branches run the exact same workflow, so you see green vs. red side-by-side.
 
-Launch the demo quickly:
+Quick way to recreate the failing branch:
 
 ```bash
 git checkout -b fail-demo
-# flip a comparison in bst/binary_search.py (e.g., change `<` to `>` inside _insert)
+# flip a comparison in bst/binary_search.py (for example change `<` to `>` inside _insert)
 git commit -am "demo: introduce BST regression"
 git push origin fail-demo
 ```
 
-Open a PR from `fail-demo` into `main` to see CI fail (lint, coverage, mutmut), then push a fix commit to watch the badges go green again.
+Then open a PR from `fail-demo` into `main`. The tests, coverage gate, and mutmut job all fail. Push a fix to that PR and the badges turn green again.
 
 
 ## Continuous Integration (CI)
@@ -232,7 +232,7 @@ Required test coverage of 95% reached. Total coverage: 100.00%
 
 
 ## Tech Stack
-		•	Python 3.x
+	•	Python 3.x
 	•	Unittest / Pytest
 	•	GitHub Actions (CI/CD)
 
@@ -267,6 +267,6 @@ binary_search_tree/
     └── workflows/
         ├── tests.yml
         └── security.yml
-🧾 License
+## License
 
 MIT License © 2025

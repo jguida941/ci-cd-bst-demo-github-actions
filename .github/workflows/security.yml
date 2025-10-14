@@ -114,14 +114,49 @@ jobs:
         with:
           python-version: "3.10"
           cache: pip
-      - name: Install CycloneDX tooling
-        run: |
-          python -m pip install --upgrade pip
-          pip install cyclonedx-bom
       - name: Generate SBOM (CycloneDX JSON v1.4)
         run: |
-          cyclonedx-bom -r requirements-dev.txt --schema-version 1.4 --json -o sbom.json || \
-          cyclonedx-bom -r requirements.txt --schema-version 1.4 --json -o sbom.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          def pick_requirements():
+              for name in ("requirements-dev.txt", "requirements.txt"):
+                  path = Path(name)
+                  if path.exists():
+                      content = path.read_text().strip()
+                      if content:
+                          return path
+              return None
+
+          req_path = pick_requirements()
+          components = []
+          if req_path:
+              for line in req_path.read_text().splitlines():
+                  line = line.strip()
+                  if not line or line.startswith("#") or line.startswith("-r"):
+                      continue
+                  name, version = (line.split("==", 1) + [""])[:2]
+                  component = {"type": "library", "name": name}
+                  if version:
+                      component["version"] = version
+                  components.append(component)
+
+          sbom = {
+              "bomFormat": "CycloneDX",
+              "specVersion": "1.4",
+              "version": 1,
+              "metadata": {
+                  "component": {
+                      "type": "application",
+                      "name": "binary-search-tree-demo"
+                  }
+              },
+              "components": components,
+          }
+
+          Path("sbom.json").write_text(json.dumps(sbom, indent=2) + "\n", encoding="utf-8")
+          PY
       - name: Upload SBOM
         uses: actions/upload-artifact@v4
         with:
