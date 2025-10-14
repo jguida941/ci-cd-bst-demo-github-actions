@@ -33,19 +33,23 @@ Then open a PR from `fail-demo` into `main`. The tests, coverage gate, and mutmu
 
 ### Local Test Failure (Before CI)
 
-The terminal output below shows the unit test catching a regression introduced in `fail-demo`.
+The terminal output below shows the **unit test catching a regression** introduced in `fail-demo`.
 .<br>
 
 
 <img width="608" height="385" alt="Screenshot 2025-10-14 at 12 41 21 PM" src="https://github.com/user-attachments/assets/7f362c1a-f5c8-4610-8d2f-7c43188cb230" />
 
 ### Intentional Bad Merge to Test CI Validation
-This pull request intentionally simulates a bad merge by reversing the BST 
-insert comparison (`<` → `>`). The CI pipeline automatically detects the regression, 
+This pull request **intentionally simulates a bad merge** by reversing the BST 
+insert comparison (`<` → `>`). <br>The CI pipeline **automatically detects** the regression, 
 failing unit tests and preventing the merge into `main`.
 
 <img width="772" height="934" alt="Screenshot 2025-10-14 at 12 55 04 PM" src="https://github.com/user-attachments/assets/4c865f96-8d4a-49bc-a403-fff646c9f8b7" />
 
+### Failing Pull Request Demo: GitHub Actions CI/CD Automatically Blocks Regression
+Even though the pull request shows “No conflicts with base branch,”
+**GitHub Actions automatically blocks the merge** due to a failed unit test and unmet coverage threshold.
+This demonstrates that **CI/CD enforces functional correctness beyond Git’s structural checks.**
 
 ## Continuous Integration (CI)
 
