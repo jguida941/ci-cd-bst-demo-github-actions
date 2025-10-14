@@ -116,8 +116,10 @@ jobs:
           cache: pip
       - name: Generate SBOM (CycloneDX JSON v1.4)
         run: |
-          cyclonedx-py -F json --spec-version 1.4 -o sbom.json -r requirements-dev.txt || \
-          cyclonedx-py -F json --spec-version 1.4 -o sbom.json -r requirements.txt
+          curl -s https://raw.githubusercontent.com/CycloneDX/cyclonedx-cli/main/install.sh | bash -s -- -b $HOME/.local/bin
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          cyclonedx --input-type requirements --output-format json --spec-version 1.4 --output sbom.json requirements-dev.txt || \
+          cyclonedx --input-type requirements --output-format json --spec-version 1.4 --output sbom.json requirements.txt
       - name: Upload SBOM
         uses: actions/upload-artifact@v4
         with:
