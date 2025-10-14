@@ -61,7 +61,7 @@ Automated verification means every commit proves that:
 - Duplicate inserts are rejected while new inserts stay ordered (insert tests).
 - Style and typing remain consistent with the shared guidelines.
 
-That combination is exactly what recruiters expect to see: fast feedback, reproducible environments, and a clear demonstration that regressions are caught before they reach production.
+That combination is good practice: fast feedback, reproducible environments, and a clear demonstration that regressions are caught before they reach production.
 
 
 ## Local Setup

@@ -262,15 +262,15 @@ jobs:
           set -o pipefail
           mkdir -p reports
           rm -rf .mutmut-cache
-          mutmut run --paths-to-mutate bst/binary_search.py --tests-dir tests --runner "python -m pytest -q" --no-progress
+          mutmut run
           mutmut results > reports/mutmut.txt
           cat reports/mutmut.txt
           survivors=$(python - <<'PY'
-from pathlib import Path
 import re
+from pathlib import Path
 text = Path('reports/mutmut.txt').read_text(encoding='utf-8')
-match = re.search(r'survived\s+(\d+)', text, re.IGNORECASE)
-print(match.group(1) if match else '0')
+match = re.search(r"survived\s+(\d+)", text, re.IGNORECASE)
+print(match.group(1) if match else "0")
 PY
 )
           if [ "$survivors" != "0" ]; then
