@@ -57,11 +57,11 @@ class BinarySearchTree:
     
 
         # Working Logic to insert into the tree
-        if key < node.key:
+        if key > node.key:
             # Recursively insert into the left subtree
             node.left = self._insert(node.left, key)
 
-        elif key > node.key:
+        elif key < node.key:
             # Recursively insert into the right subtree.
             node.right = self._insert(node.right, key)
         return node
