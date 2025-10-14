@@ -1,7 +1,8 @@
 from bst.binary_search import BinarySearchTree
-from hypothesis import given, strategies as st
+from hypothesis import given, settings, strategies as st
 
 
+@settings(deadline=None, max_examples=200, derandomize=True)
 @given(st.lists(st.integers(min_value=-1000, max_value=1000), unique=True))
 def test_invariants_random_ops(keys):
     tree = BinarySearchTree()

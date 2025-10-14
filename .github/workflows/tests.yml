@@ -130,7 +130,7 @@ jobs:
           else:
             coverage_text = "Coverage summary unavailable."
           coverage_passed = os.environ.get("COVERAGE_PASSED", "false") == "true"
-          coverage_status = "✅ Meets threshold" if coverage_passed else "⚠️ Below threshold or unavailable"
+          coverage_status = "PASS Meets threshold" if coverage_passed else "WARN Below threshold or unavailable"
 
           md = f"""# CI Test Report
 

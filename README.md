@@ -11,7 +11,7 @@
 [![Tests - fail-demo](https://github.com/jguida941/GithubActionsDemo/actions/workflows/tests.yml/badge.svg?branch=fail-demo)](https://github.com/jguida941/GithubActionsDemo/actions/workflows/tests.yml?query=branch%3Afail-demo)
 [![Coverage](https://codecov.io/gh/jguida941/GithubActionsDemo/branch/main/graph/badge.svg?token=REPLACE_WITH_CODECOV_TOKEN)](https://codecov.io/gh/jguida941/GithubActionsDemo)
 ![Mutation Testing](https://img.shields.io/badge/Mutation%20Testing-mutmut%20clean-brightgreen)
-[![Security Scan](https://github.com/jguida941/GithubActionsDemo/actions/workflows/security.yml/badge.svg)](https://github.com/jguida941/GithubActionsDemo/actions/workflows/security.yml)
+[![Security Scan](https://github.com/jguida941/GithubActionsDemo/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/jguida941/GithubActionsDemo/actions/workflows/security.yml?query=branch%3Amain)
 
 
 ## Branch Demo
@@ -19,6 +19,17 @@
 - `main` holds the corrected BST implementation and should stay green.
 - `fail-demo` keeps the intentionally broken version so recruiters can see the pipeline catching a regression.
 - Both branches run the exact same workflow, so the paired badges above show a passing vs. failing run in real time.
+
+Launch the demo quickly:
+
+```bash
+git checkout -b fail-demo
+# flip a comparison in bst/binary_search.py (e.g., change `<` to `>` inside _insert)
+git commit -am "demo: introduce BST regression"
+git push origin fail-demo
+```
+
+Open a PR from `fail-demo` into `main` to see CI fail (lint, coverage, mutmut), then push a fix commit to watch the badges go green again.
 
 
 ## Continuous Integration (CI)
@@ -64,7 +75,21 @@ pip install -r requirements-dev.txt
 pytest
 ```
 
-`requirements.txt` stays empty on purpose:there are no runtime dependencies:while `requirements-dev.txt` layers on linting, typing, and test tooling.
+`requirements.txt` stays empty on purpose: there are no runtime dependencies, while `requirements-dev.txt` layers on linting, typing, and test tooling.
+
+### Local dev quickstart (Python 3.10)
+
+```bash
+# activate your virtualenv first
+python -m pytest -q
+coverage run -m pytest -q && coverage xml
+coverage report --fail-under=95
+rm -rf .mutmut-cache && mutmut run && mutmut results | head -40
+ruff check .
+mypy bst
+```
+
+Those are the exact commands the workflows run: unit tests with coverage, mutation testing without coverage noise, and the fast lint/type passes.
 
 
 
@@ -236,6 +261,7 @@ binary_search_tree/
 ├── setup.cfg
 ├── CODEOWNERS
 ├── SECURITY.md
+├── LICENSE
 ├── .gitignore
 └── .github/
     └── workflows/
