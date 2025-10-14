@@ -9,7 +9,7 @@
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 [![Tests - main](https://github.com/jguida941/GithubActionsDemo/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/jguida941/GithubActionsDemo/actions/workflows/tests.yml?query=branch%3Amain)
 [![Tests - fail-demo](https://github.com/jguida941/GithubActionsDemo/actions/workflows/tests.yml/badge.svg?branch=fail-demo)](https://github.com/jguida941/GithubActionsDemo/actions/workflows/tests.yml?query=branch%3Afail-demo)
-[![Coverage](https://codecov.io/gh/jguida941/GithubActionsDemo/branch/main/graph/badge.svg?token=REPLACE_WITH_CODECOV_TOKEN)](https://codecov.io/gh/jguida941/GithubActionsDemo)
+[![Coverage](https://codecov.io/gh/jguida941/GithubActionsDemo/branch/main/graph/badge.svg)](https://codecov.io/gh/jguida941/GithubActionsDemo)
 ![Mutation Testing](https://img.shields.io/badge/Mutation%20Testing-mutmut%20clean-brightgreen)
 [![Security Scan](https://github.com/jguida941/GithubActionsDemo/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/jguida941/GithubActionsDemo/actions/workflows/security.yml?query=branch%3Amain)
 
@@ -239,6 +239,7 @@ Required test coverage of 95% reached. Total coverage: 100.00%
 
 ## Project Structure
 
+```text
 binary_search_tree/
 ├── bst/
 │   └── binary_search.py
@@ -267,6 +268,9 @@ binary_search_tree/
     └── workflows/
         ├── tests.yml
         └── security.yml
+```
+
 ## License
+```
 
 MIT License © 2025

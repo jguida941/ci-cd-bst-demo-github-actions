@@ -120,8 +120,8 @@ jobs:
           python -m pip install cyclonedx-bom
       - name: Generate SBOM (CycloneDX JSON v1.4)
         run: |
-          cyclonedx-bom --requirements requirements-dev.txt --schema-version 1.4 --format json --output sbom.json || \
-          cyclonedx-bom --requirements requirements.txt --schema-version 1.4 --format json --output sbom.json
+          cyclonedx-py requirements --spec-version 1.4 --output-format JSON --output-file sbom.json requirements-dev.txt || \
+          cyclonedx-py requirements --spec-version 1.4 --output-format JSON --output-file sbom.json requirements.txt
       - name: Upload SBOM
         uses: actions/upload-artifact@v4
         with:
