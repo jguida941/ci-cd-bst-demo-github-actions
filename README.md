@@ -39,6 +39,14 @@ The terminal output below shows the unit test catching a regression introduced i
 
 <img width="608" height="385" alt="Screenshot 2025-10-14 at 12 41 21 PM" src="https://github.com/user-attachments/assets/7f362c1a-f5c8-4610-8d2f-7c43188cb230" />
 
+### Intentional Bad Merge to Test CI Validation
+This pull request intentionally simulates a bad merge by reversing the BST 
+insert comparison (`<` → `>`). The CI pipeline automatically detects the regression, 
+failing unit tests and preventing the merge into `main`.
+
+<img width="772" height="934" alt="Screenshot 2025-10-14 at 12 55 04 PM" src="https://github.com/user-attachments/assets/4c865f96-8d4a-49bc-a403-fff646c9f8b7" />
+
+
 ## Continuous Integration (CI)
 
 Every time you **push** or **open a pull request**, GitHub Actions automatically:
