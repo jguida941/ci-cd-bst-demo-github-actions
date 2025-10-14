@@ -144,6 +144,7 @@ jobs:
         with:
           files: reports/coverage.xml
           flags: unit
+          token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
       - name: Fail if tests failed
         if: ${{ always() && steps.pytest.outputs.test_exit != '0' }}

@@ -172,7 +172,7 @@ Required test coverage of 95% reached: 100.00%
 - The `test` job writes `reports/report.md`, `reports/pytest.log`, `reports/junit.xml`, and `reports/coverage.txt`/`coverage.xml`.
 - The Markdown report is visible in the GitHub Actions job summary, stored as an artifact, posted as a PR comment, and the coverage XML is uploaded to Codecov for tracking the badge above.
 - Email delivery requires repository secrets (`SMTP_SERVER`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `MAIL_FROM`, `MAIL_TO`). Set `MAIL_TO` to `justinguidascell@gmail.com` (or any recipient) and use an App Password/API key when your provider requires it.
-- Codecov uploads require a `CODECOV_TOKEN` secret (Settings → Secrets and variables → Actions). Paste the repository token from Codecov and replace the `REPLACE_WITH_CODECOV_TOKEN` placeholder in the badge once it is provisioned.
+- Codecov uploads require a `CODECOV_TOKEN` secret (Settings → Secrets and variables → Actions). Paste the repository token from Codecov so the workflow can authenticate uploads—no token is embedded in the badge URL.
 
 ## Test Suite Highlights
 
@@ -189,37 +189,36 @@ Required test coverage of 95% reached: 100.00%
 
 ## Coverage, Mutation, and Security Testing
 
-- Pytest is configured with `--cov=bst --cov-fail-under=95`, and the current suite hits 100% of statements/branches, eliminating the gaps that previously showed up on lines 33, 80, 86, 91, and 119–129.
-- The CI step publishes a human-readable summary (`reports/coverage.txt`), fails if coverage dips below 95%, and ships `reports/coverage.xml` to Codecov for the live badge.
-- Mutation testing (`mutmut`) runs after the unit tests and fails the workflow if any mutants survive, proving the assertions are strong enough to catch behavioral regressions.
-- Hypothesis-based property tests (`tests/test_fuzz_invariants.py`) fuzz insert/delete sequences, ensuring invariants hold under random workloads.
-- Security workflow runs `pip-audit`, `bandit`, `ruff` (security/bugbear rules), CodeQL, and SBOM generation, with badges in the README to demonstrate the health of those checks and SARIF uploads that surface findings under **Security → Code scanning alerts**.
-- Dependabot opens weekly, grouped PRs for pip packages and GitHub Actions (labelled/assigned automatically) so dependency drift is caught early.
+**Coverage**
+- Pytest runs with `--cov=bst --cov-fail-under=95`, and the workflow uploads `reports/coverage.xml` to Codecov.
 
-Sample local run:
+**Mutation testing**
+- `mutmut run` executes after unit tests; the job fails if any mutants survive. The mutation report is archived as an artifact.
 
+**Property-based fuzzing**
+- `tests/test_fuzz_invariants.py` (Hypothesis) hammers random insert/delete sequences to ensure BST invariants hold.
+
+**Security scanning**
+- `pip-audit` checks dependencies for known CVEs (SARIF uploaded to GitHub code scanning).
+- `bandit` runs security-focused static analysis on the BST module (SARIF uploaded).
+- `ruff` security/bugbear rules lint for insecure Python patterns (SARIF uploaded).
+- GitHub CodeQL analyzes the repository and surfaces alerts in Security → Code scanning.
+- CycloneDX SBOM (`cyclonedx-bom`) generates `sbom.json` so dependency inventories are tracked.
+- Dependabot opens weekly grouped PRs for pip packages and GitHub Actions, keeping dependencies current.
+
+Sample local/CI run (coverage gate satisfied):
+
+```bash
+# coverage & mutation
+pip install -r requirements-dev.txt
+make test
+make mutation
+# security checks (local)
+pip-audit -r requirements.txt
+bandit -r bst -f txt
+ruff check . --select S,B
 ```
-$ pip install -r requirements-dev.txt
-$ make test
-============================= test session starts ==============================
-collected 18 items
 
-tests/test_delete.py ........
-tests/test_delete_missing.py .
-tests/test_delete_one_child.py ..
-tests/test_delete_successor.py .
-tests/test_edge_cases.py ...
-tests/test_fuzz_invariants.py .
-tests/test_insert.py ..
-tests/test_search.py ...
-tests/test_traversal.py .
-tests/test_traversal_empty.py .
-
-============================== 18 passed in 0.22s ==============================
-Required test coverage of 95% reached. Total coverage: 100.00%
-```
-
-*Coverage numbers above come from a representative local run; CI enforces the same threshold and uploads the XML to Codecov.*
 
 ## Make Targets
 
@@ -232,9 +231,15 @@ Required test coverage of 95% reached. Total coverage: 100.00%
 
 
 ## Tech Stack
-	•	Python 3.x
-	•	Unittest / Pytest
-	•	GitHub Actions (CI/CD)
+- Python 3.10
+- Pytest & unittest (unit tests + Hypothesis property tests)
+- Mutation testing with mutmut
+- Linting with Ruff
+- Type checking with mypy
+- Coverage via coverage.py / Codecov
+- Security scans: pip-audit, Bandit, Ruff security, CodeQL
+- CycloneDX SBOM generation
+- GitHub Actions (CI/CD)
 
 
 ## Project Structure

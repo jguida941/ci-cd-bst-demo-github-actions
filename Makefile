@@ -4,12 +4,13 @@ PYTEST ?= $(PYTHON) -m pytest
 .PHONY: test coverage mutation clean
 
 test:
-	PYTEST_ADDOPTS="--cov=bst --cov-report=term-missing --cov-report=xml --cov-fail-under=95" $(PYTEST)
+	mkdir -p reports
+	PYTEST_ADDOPTS="--cov=bst --cov-report=term-missing --cov-report=xml:reports/coverage.xml --cov-fail-under=95" $(PYTEST)
 
 coverage:
-	PYTEST_ADDOPTS="--cov=bst --cov-report=term-missing --cov-report=xml --cov-fail-under=95" $(PYTEST)
+	mkdir -p reports
+	PYTEST_ADDOPTS="--cov=bst --cov-report=term-missing --cov-report=xml:reports/coverage.xml --cov-fail-under=95" $(PYTEST)
 	coverage report
-	coverage xml -o reports/coverage.xml
 
 mutation:
 	rm -rf .mutmut-cache
