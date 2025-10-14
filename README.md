@@ -31,6 +31,13 @@ git push origin fail-demo
 
 Then open a PR from `fail-demo` into `main`. The tests, coverage gate, and mutmut job all fail. Push a fix to that PR and the badges turn green again.
 
+### Local Test Failure (Before CI)
+
+The terminal output below shows the unit test catching a regression introduced in `fail-demo`.
+.<br>
+
+
+<img width="608" height="385" alt="Screenshot 2025-10-14 at 12 41 21 PM" src="https://github.com/user-attachments/assets/7f362c1a-f5c8-4610-8d2f-7c43188cb230" />
 
 ## Continuous Integration (CI)
 
