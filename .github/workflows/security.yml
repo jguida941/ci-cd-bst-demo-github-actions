@@ -114,12 +114,14 @@ jobs:
         with:
           python-version: "3.10"
           cache: pip
+      - name: Install CycloneDX CLI
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install cyclonedx-bom
       - name: Generate SBOM (CycloneDX JSON v1.4)
         run: |
-          curl -s https://raw.githubusercontent.com/CycloneDX/cyclonedx-cli/main/install.sh | bash -s -- -b $HOME/.local/bin
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-          cyclonedx --input-type requirements --output-format json --spec-version 1.4 --output sbom.json requirements-dev.txt || \
-          cyclonedx --input-type requirements --output-format json --spec-version 1.4 --output sbom.json requirements.txt
+          cyclonedx-bom --requirements requirements-dev.txt --schema-version 1.4 --format json --output sbom.json || \
+          cyclonedx-bom --requirements requirements.txt --schema-version 1.4 --format json --output sbom.json
       - name: Upload SBOM
         uses: actions/upload-artifact@v4
         with:
