@@ -70,7 +70,7 @@ Every time you **push** or **open a pull request**, GitHub Actions automatically
 - **type-check** job: runs `mypy bst` to catch interface mistakes before runtime.
 - **test** job: depends on both jobs, runs the full pytest suite with coverage (enforcing a 95% minimum), produces a Markdown summary, uploads artifacts, posts PR comments, emails the report (optional), and ships coverage to Codecov.
 - **mutation** job: runs `mutmut` after unit tests, failing the workflow if any mutants survive the suite.
-- **security** workflow: executes `pip-audit`, Bandit, Ruff security rules, CodeQL analysis, dependency review, and CycloneDX SBOM generation on push/PR/weekly cron, with SARIF artifacts uploaded to the Security tab.
+- **security** workflow: executes `pip-audit` in JSON mode (converted to SARIF via `scripts/pip_audit_to_sarif.py`), Bandit, Ruff security rules, CodeQL analysis, dependency review, and CycloneDX SBOM generation on push/PR/weekly cron; every scanner uploads SARIF artifacts to the Security tab.
 - **Workflow triggers** on `main` (healthy) and `fail-demo` (intentionally broken) so you always see a green and red badge side-by-side.
 
 ### Why CI/CD matters here
@@ -97,7 +97,7 @@ It executes linting, type checking, unit testing, and mutation testing, then aut
 	
 <img width="1715" height="1026" alt="Screenshot 2025-10-14 at 11 54 56 AM" src="https://github.com/user-attachments/assets/345e0048-7c11-4b80-9e26-414e13331e02" />
 
-- **pip-audit** for dependency vulnerability scanning
+- **pip-audit** for dependency vulnerability scanning (runs in JSON mode and is converted to SARIF via `scripts/pip_audit_to_sarif.py` so GitHub code scanning can ingest the results)
 - **bandit** for static security analysis
 - **ruff-security** for lint-based threat checks
 - **codeql** for deep semantic vulnerability analysis
@@ -240,7 +240,7 @@ Required test coverage of 95% reached: 100.00%
 - `tests/test_fuzz_invariants.py` (Hypothesis) hammers random insert/delete sequences to ensure BST invariants hold.
 
 **Security scanning**
-- `pip-audit` checks dependencies for known CVEs (SARIF uploaded to GitHub code scanning).
+- `pip-audit` checks dependencies for known CVEs, emits JSON, and we convert it to SARIF with `scripts/pip_audit_to_sarif.py` before uploading to GitHub code scanning (keeps compatibility with upstream CLI changes).
 - `bandit` runs security-focused static analysis on the BST module (SARIF uploaded).
 - `ruff` security/bugbear rules lint for insecure Python patterns (SARIF uploaded).
 - GitHub CodeQL analyzes the repository and surfaces alerts in Security → Code scanning.
