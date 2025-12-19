@@ -1,5 +1,7 @@
+from hypothesis import given, settings
+from hypothesis import strategies as st
+
 from bst.binary_search import BinarySearchTree
-from hypothesis import given, settings, strategies as st
 
 
 @settings(deadline=None, max_examples=200, derandomize=True)

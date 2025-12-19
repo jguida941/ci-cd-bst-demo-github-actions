@@ -117,14 +117,18 @@ def find_requirement_line(source: Path, package_name: str) -> int:
     if not source.is_file():
         return 1
     try:
-        for idx, raw_line in enumerate(source.read_text(encoding="utf-8").splitlines(), start=1):
+        for idx, raw_line in enumerate(
+            source.read_text(encoding="utf-8").splitlines(), start=1
+        ):
             line = raw_line.split("#", 1)[0].strip()
             if not line:
                 continue
             lower = line.lower()
             pkg_lower = package_name.lower()
-            if lower.startswith(f"{pkg_lower}==") or lower == pkg_lower or lower.startswith(
-                f"{pkg_lower}>"
+            if (
+                lower.startswith(f"{pkg_lower}==")
+                or lower == pkg_lower
+                or lower.startswith(f"{pkg_lower}>")
             ):
                 return idx
     except OSError:
@@ -199,7 +203,11 @@ def build_sarif(
             fixes = vuln.get("fix_versions") or []
             fix_text = ", ".join(fixes) if fixes else "No known fix."
             description = vuln.get("description") or rule_id
-            line = find_requirement_line(source_path, package) if source_path.is_file() else 1
+            line = (
+                find_requirement_line(source_path, package)
+                if source_path.is_file()
+                else 1
+            )
 
             result = {
                 "ruleId": rule_id,

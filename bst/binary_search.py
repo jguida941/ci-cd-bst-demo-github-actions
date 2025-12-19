@@ -19,10 +19,8 @@ In short:
 """
 
 
-
 class TreeNode:
 
-   
     def __init__(self, key):
         self.key = key
         self.left = None
@@ -33,10 +31,8 @@ class TreeNode:
         return str(self.key)
 
 
-
 class BinarySearchTree:
-    
-   
+
     def __init__(self):
         self.root = None
 
@@ -54,7 +50,6 @@ class BinarySearchTree:
             node.right = self._insert(node.right, key)
         return node
         """
-    
 
         # Working Logic to insert into the tree
         if key < node.key:
@@ -65,7 +60,6 @@ class BinarySearchTree:
             # Recursively insert into the right subtree.
             node.right = self._insert(node.right, key)
         return node
-        
 
     # Call the helper method insert
     def insert(self, key):
@@ -89,7 +83,7 @@ class BinarySearchTree:
     def _delete(self, node, key):
         if node is None:
             return node
-        
+
         if key < node.key:
             # delete specified key
             node.left = self._delete(node.left, key)
@@ -100,7 +94,7 @@ class BinarySearchTree:
                 return node.right
             if node.right is None:
                 return node.left
-            
+
             # 2 children: replace with inorder successor (min in right subtree)
             succ = node.right
             while succ.left:
@@ -126,6 +120,7 @@ class BinarySearchTree:
         dfs(self.root)
         return result
 
+
 # ===== demo usage =====
 if __name__ == "__main__":  # pragma: no cover
     bst = BinarySearchTree()
@@ -134,7 +129,7 @@ if __name__ == "__main__":  # pragma: no cover
         bst.insert(k)
 
     # Search for 80: prints "80" because TreeNode.__str__ returns the key
-    print('Search for 80:', bst.search(80))
+    print("Search for 80:", bst.search(80))
 
     print("Inorder before delete:", bst.inorder())  # [20, 30, 40, 50, 60, 70, 80]
     bst.delete(80)
