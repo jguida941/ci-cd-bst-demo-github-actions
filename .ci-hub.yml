@@ -1,0 +1,57 @@
+version: '1.0'
+repo:
+  owner: jguida941
+  name: ci-cd-bst-demo-github-actions
+  language: python
+  default_branch: main
+  dispatch_workflow: hub-ci.yml
+python:
+  version: '3.12'
+  tools:
+    pytest:
+      enabled: true
+      min_coverage: 70
+    ruff:
+      enabled: true
+      fail_on_error: true
+    black:
+      enabled: true
+      fail_on_format_issues: false
+    isort:
+      enabled: true
+      fail_on_issues: false
+    bandit:
+      enabled: true
+      fail_on_high: true
+    pip_audit:
+      enabled: true
+      fail_on_vuln: true
+    mypy:
+      enabled: false
+    mutmut:
+      enabled: false
+      min_mutation_score: 70
+    semgrep:
+      enabled: false
+    trivy:
+      enabled: false
+      fail_on_critical: false
+      fail_on_high: false
+    codeql:
+      enabled: true
+    docker:
+      enabled: false
+reports:
+  retention_days: 30
+  badges:
+    enabled: true
+    branch: main
+  codecov:
+    enabled: true
+    fail_ci_on_error: false
+thresholds:
+  coverage_min: 70
+  mutation_score_min: 70
+  max_critical_vulns: 0
+  max_high_vulns: 0
+language: python
